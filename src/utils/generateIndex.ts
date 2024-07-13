@@ -1,18 +1,23 @@
 import path from "path";
 
 export function generateIndex(pages, currentPath) {
-  console.log("currentPath", currentPath);
-
   function createIndexItem(page) {
     const url =
       page.url ||
-      `${path.relative("src/pages", page.file).replace(/\.(md|mdx)$/, "")}`;
-    return {
+      `/${path.relative("src/pages", page.file).replace(/\.(md|mdx)$/, "")}`;
+    const item = {
       label:
         page.frontmatter.title ||
         path.basename(page.file, path.extname(page.file)),
       url: url === "/index" ? "/" : url,
     };
+
+    // Add isEnabled property only if it's true
+    if (page.frontmatter.isEnabled === true) {
+      item.isEnabled = true;
+    }
+
+    return item;
   }
 
   function buildStructure(pages) {
@@ -32,7 +37,7 @@ export function generateIndex(pages, currentPath) {
           dirEntry = {
             label:
               part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, " "),
-            url: `${parts.slice(0, index + 1).join("/")}`,
+            url: `/${parts.slice(0, index + 1).join("/")}`,
             children: [],
           };
           dirMap.set(part, dirEntry);
@@ -48,6 +53,9 @@ export function generateIndex(pages, currentPath) {
         if (dirEntry) {
           dirEntry.label = indexItem.label;
           dirEntry.url = indexItem.url;
+          if (indexItem.isEnabled) {
+            dirEntry.isEnabled = true;
+          }
         } else if (indexItem.url === "/") {
           structure.unshift(indexItem);
         }
@@ -59,5 +67,40 @@ export function generateIndex(pages, currentPath) {
     return structure;
   }
 
-  return buildStructure(pages);
+  function filterStructure(structure, currentPath) {
+    if (currentPath === "/") {
+      return structure;
+    }
+
+    const parts = currentPath.split("/").filter(Boolean);
+    let currentLevel = structure;
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const found = currentLevel.find(
+        (item) => item.url.split("/").pop() === part
+      );
+      if (found) {
+        if (found.url === currentPath) {
+          // If we've found the exact match, return its children
+          return found.children || [];
+        }
+        if (found.children) {
+          currentLevel = found.children;
+        } else {
+          // If we've reached a leaf node before matching the full path, return an empty array
+          return [];
+        }
+      } else {
+        // If we can't find a matching part, return an empty array
+        return [];
+      }
+    }
+
+    // If we've gone through all parts without finding an exact match, return the current level
+    return currentLevel;
+  }
+
+  const fullStructure = buildStructure(pages);
+  return filterStructure(fullStructure, currentPath);
 }

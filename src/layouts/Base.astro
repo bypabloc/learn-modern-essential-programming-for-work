@@ -1,5 +1,6 @@
 ---
-import IndexMenu from "../components/ui/Index/Index.astro";
+import { ViewTransitions } from "astro:transitions";
+import IndexMenu from "@/components/ui/Index/Index.astro";
 const { frontmatter, headings, file } = Astro.props;
 
 // const testProps = {
@@ -23,36 +24,6 @@ function generateBreadcrumbs(url) {
   ];
 }
 const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
-
-function renderMenuItems(items) {
-  return `
-    <ul class="menu-list">
-      ${items
-        .map(
-          (item) => `
-        <li class="menu-item">
-          <div class="menu-item-header">
-            <a href="${item.url}">${item.label}</a>
-            ${
-              item.children && item.children.length > 0
-                ? `<button class="toggle-btn" aria-label="Toggle submenu">
-                   <i class="i-mdi-chevron-down"></i>
-                 </button>`
-                : ""
-            }
-          </div>
-          ${
-            item.children && item.children.length > 0
-              ? `<div class="submenu">${renderMenuItems(item.children)}</div>`
-              : ""
-          }
-        </li>
-      `
-        )
-        .join("")}
-    </ul>
-  `;
-}
 ---
 
 <html lang="es">
@@ -60,17 +31,30 @@ function renderMenuItems(items) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{frontmatter.title} - Guía de Programación</title>
+    <ViewTransitions />
     <style>
+      main {
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 12px;
+        flex-wrap: nowrap;
+        align-content: center;
+        justify-content: flex-start;
+        align-items: center;
+      }
       body {
-        font-family: Arial, sans-serif;
+        margin: 0px;
+        font-family: "Source Sans Pro", sans-serif;
+        background-color: #f5f5f5;
         line-height: 1.6;
         color: #333;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
+        margin: 0;
+        padding: 0;
       }
       nav {
-        background-color: #f4f4f4;
+        background-color: #a8a8a8;
         padding: 10px;
       }
       nav a {
@@ -95,66 +79,29 @@ function renderMenuItems(items) {
     </style>
   </head>
 </html>
-<body>
+<body class="flex flex-col gap-2 w-full">
   <nav>
-    <a href="/">Inicio</a>
+    <a href="/">Guía</a>
   </nav>
-  <div class="breadcrumbs">
-    {
-      breadcrumbs.map((crumb, index) => (
-        <span>
-          {index > 0 && " > "}
-          {crumb.url ? (
-            <a href={crumb.url}>{crumb.name}</a>
-          ) : (
-            <span>{crumb.name}</span>
-          )}
-        </span>
-      ))
-    }
-  </div>
-  <IndexMenu />
-  <main>
-    <h1>{frontmatter.title}</h1>
-    <slot />
+  <IndexMenu class="px-4" />
+  <main class="flex flex-col items-center px-4 w-full">
+    <div class="w-full max-w-3xl">
+      <div class="breadcrumbs px-4">
+        {
+          breadcrumbs.map((crumb, index) => (
+            <span>
+              {index > 0 && " > "}
+              {crumb.url ? (
+                <a href={crumb.url}>{crumb.name}</a>
+              ) : (
+                <span>{crumb.name}</span>
+              )}
+            </span>
+          ))
+        }
+      </div>
+      <h1>{frontmatter.title}</h1>
+      <slot />
+    </div>
   </main>
-
-  <script>
-    function toggleSubmenu(btn) {
-      const submenu = btn.closest(".menu-item").querySelector(".submenu");
-      const icon = btn.querySelector("i");
-      if (submenu.style.display === "block") {
-        submenu.style.display = "none";
-        icon.className = "i-mdi-chevron-down";
-      } else {
-        submenu.style.display = "block";
-        icon.className = "i-mdi-chevron-up";
-      }
-    }
-
-    function expandAll(expand = true) {
-      document.querySelectorAll(".submenu").forEach((submenu) => {
-        submenu.style.display = expand ? "block" : "none";
-      });
-      document.querySelectorAll(".toggle-btn i").forEach((icon) => {
-        icon.className = expand ? "i-mdi-chevron-up" : "i-mdi-chevron-down";
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll(".toggle-btn").forEach((btn) => {
-        btn.addEventListener("click", () => toggleSubmenu(btn));
-      });
-
-      const expandAllBtn = document.getElementById("expandAllBtn");
-      let isExpanded = false;
-      expandAllBtn.addEventListener("click", () => {
-        isExpanded = !isExpanded;
-        expandAll(isExpanded);
-        expandAllBtn.textContent = isExpanded
-          ? "Contraer todo"
-          : "Desplegar todo";
-      });
-    });
-  </script>
 </body>

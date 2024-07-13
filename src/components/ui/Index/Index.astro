@@ -1,13 +1,24 @@
 ---
-import { generateIndex } from "../../../utils/generateIndex";
+import { generateIndex } from "@/utils/generateIndex";
 
-const allPages = await Astro.glob("../../../pages/**/*.{md,mdx}");
-const index = generateIndex(allPages, Astro.url.pathname);
+interface Props {
+  class?: string;
+}
 
+const { class: className = "" } = Astro.props;
+
+const { pathname } = Astro.url;
+const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
+const index = generateIndex(allPages, pathname);
+console.log("pathname", pathname);
 console.log("index", JSON.stringify(index, null, 2));
 ---
 
-<index-menu class="menu-container" data-index={JSON.stringify(index)}>
+<index-menu
+  class={`menu-container ${className}`}
+  data-index={JSON.stringify(index)}
+  data-pathname={pathname}
+>
 </index-menu>
 
 <script>
@@ -73,9 +84,7 @@ console.log("index", JSON.stringify(index, null, 2));
 
 <style is:global>
   .menu-container {
-    background-color: #f8f9fa;
     border-radius: 8px;
-    margin-bottom: 20px;
   }
   .menu-list {
     list-style-type: none;

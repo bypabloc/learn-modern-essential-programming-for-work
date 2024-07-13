@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import UnoCSS from 'unocss/astro';
 import mdx from "@astrojs/mdx";
 import remarkToc from 'remark-toc';
+import path from 'path';
 // import rehypeMinifyHtml from 'rehype-minify-html';
 
 // https://astro.build/config
@@ -19,4 +20,14 @@ export default defineConfig({
       gfm: false,
     }),
   ],
+  vite: {
+    resolve: {
+      alias: {
+        '@': path.resolve('./src'),
+        '@components': path.resolve('./src/components'),
+        '@layouts': path.resolve('./src/layouts'),
+        '@utils': path.resolve('./src/utils'),
+      },
+    },
+  },
 });
