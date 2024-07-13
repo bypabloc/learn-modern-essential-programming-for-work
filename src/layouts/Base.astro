@@ -1,13 +1,15 @@
 ---
-const { frontmatter } = Astro.props;
-const posts = await Astro.glob("../pages/**/*.md");
+import { getCollection } from "astro:content";
+import path from "path";
+
+const { frontmatter, headings, file } = Astro.props;
 
 // Function to generate breadcrumbs
 function generateBreadcrumbs(url) {
   const parts = url.split("/").filter(Boolean);
   let path = "";
   return [
-    { name: "Inicio", url: "/" },
+    { name: "Inicio", url: parts.length === 0 ? null : "/" },
     ...parts.map((part, index) => {
       path += `/${part}`;
       return {
@@ -18,6 +20,34 @@ function generateBreadcrumbs(url) {
   ];
 }
 
+// Function to generate index
+async function generateIndex() {
+  const currentFile = path.basename(file);
+  const currentDir = path.dirname(file);
+
+  if (currentFile === "index.mdx") {
+    const allPages = await Astro.glob("../pages/**/*.{md,mdx}");
+
+    const childPages = allPages.filter((page) => {
+      const pageDir = path.dirname(page.file);
+      const isDirectChild =
+        path.relative(currentDir, pageDir).split(path.sep).length === 1;
+      const isIndexFile = path.basename(page.file) === "index.mdx";
+
+      return isDirectChild && !isIndexFile;
+    });
+
+    return childPages.map((page) => ({
+      url: page.url,
+      title:
+        page.frontmatter.title ||
+        path.basename(page.file, path.extname(page.file)),
+    }));
+  }
+  return null;
+}
+
+const index = await generateIndex();
 const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
 ---
 
@@ -82,5 +112,19 @@ const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
       <h1>{frontmatter.title}</h1>
       <slot />
     </main>
+    {
+      index && index.length > 0 && (
+        <div>
+          <h2>Índice de Contenidos</h2>
+          <ul>
+            {index.map((page) => (
+              <li>
+                <a href={page.url}>{page.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
   </body>
 </html>
