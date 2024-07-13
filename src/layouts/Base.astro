@@ -1,8 +1,11 @@
 ---
-import { getCollection } from "astro:content";
-import path from "path";
-
+import IndexMenu from "../components/ui/Index/Index.astro";
 const { frontmatter, headings, file } = Astro.props;
+
+// const testProps = {
+//   ...Astro.props,
+// };
+// console.log("testProps", testProps);
 
 // Function to generate breadcrumbs
 function generateBreadcrumbs(url) {
@@ -19,36 +22,37 @@ function generateBreadcrumbs(url) {
     }),
   ];
 }
-
-// Function to generate index
-async function generateIndex() {
-  const currentFile = path.basename(file);
-  const currentDir = path.dirname(file);
-
-  if (currentFile === "index.mdx") {
-    const allPages = await Astro.glob("../pages/**/*.{md,mdx}");
-
-    const childPages = allPages.filter((page) => {
-      const pageDir = path.dirname(page.file);
-      const isDirectChild =
-        path.relative(currentDir, pageDir).split(path.sep).length === 1;
-      const isIndexFile = path.basename(page.file) === "index.mdx";
-
-      return isDirectChild && !isIndexFile;
-    });
-
-    return childPages.map((page) => ({
-      url: page.url,
-      title:
-        page.frontmatter.title ||
-        path.basename(page.file, path.extname(page.file)),
-    }));
-  }
-  return null;
-}
-
-const index = await generateIndex();
 const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
+
+function renderMenuItems(items) {
+  return `
+    <ul class="menu-list">
+      ${items
+        .map(
+          (item) => `
+        <li class="menu-item">
+          <div class="menu-item-header">
+            <a href="${item.url}">${item.label}</a>
+            ${
+              item.children && item.children.length > 0
+                ? `<button class="toggle-btn" aria-label="Toggle submenu">
+                   <i class="i-mdi-chevron-down"></i>
+                 </button>`
+                : ""
+            }
+          </div>
+          ${
+            item.children && item.children.length > 0
+              ? `<div class="submenu">${renderMenuItems(item.children)}</div>`
+              : ""
+          }
+        </li>
+      `
+        )
+        .join("")}
+    </ul>
+  `;
+}
 ---
 
 <html lang="es">
@@ -90,41 +94,67 @@ const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
       }
     </style>
   </head>
-  <body>
-    <nav>
-      <a href="/">Inicio</a>
-    </nav>
-    <div class="breadcrumbs">
-      {
-        breadcrumbs.map((crumb, index) => (
-          <span>
-            {index > 0 && " > "}
-            {crumb.url ? (
-              <a href={crumb.url}>{crumb.name}</a>
-            ) : (
-              <span>{crumb.name}</span>
-            )}
-          </span>
-        ))
-      }
-    </div>
-    <main>
-      <h1>{frontmatter.title}</h1>
-      <slot />
-    </main>
-    {
-      index && index.length > 0 && (
-        <div>
-          <h2>Índice de Contenidos</h2>
-          <ul>
-            {index.map((page) => (
-              <li>
-                <a href={page.url}>{page.title}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-  </body>
 </html>
+<body>
+  <nav>
+    <a href="/">Inicio</a>
+  </nav>
+  <div class="breadcrumbs">
+    {
+      breadcrumbs.map((crumb, index) => (
+        <span>
+          {index > 0 && " > "}
+          {crumb.url ? (
+            <a href={crumb.url}>{crumb.name}</a>
+          ) : (
+            <span>{crumb.name}</span>
+          )}
+        </span>
+      ))
+    }
+  </div>
+  <IndexMenu />
+  <main>
+    <h1>{frontmatter.title}</h1>
+    <slot />
+  </main>
+
+  <script>
+    function toggleSubmenu(btn) {
+      const submenu = btn.closest(".menu-item").querySelector(".submenu");
+      const icon = btn.querySelector("i");
+      if (submenu.style.display === "block") {
+        submenu.style.display = "none";
+        icon.className = "i-mdi-chevron-down";
+      } else {
+        submenu.style.display = "block";
+        icon.className = "i-mdi-chevron-up";
+      }
+    }
+
+    function expandAll(expand = true) {
+      document.querySelectorAll(".submenu").forEach((submenu) => {
+        submenu.style.display = expand ? "block" : "none";
+      });
+      document.querySelectorAll(".toggle-btn i").forEach((icon) => {
+        icon.className = expand ? "i-mdi-chevron-up" : "i-mdi-chevron-down";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".toggle-btn").forEach((btn) => {
+        btn.addEventListener("click", () => toggleSubmenu(btn));
+      });
+
+      const expandAllBtn = document.getElementById("expandAllBtn");
+      let isExpanded = false;
+      expandAllBtn.addEventListener("click", () => {
+        isExpanded = !isExpanded;
+        expandAll(isExpanded);
+        expandAllBtn.textContent = isExpanded
+          ? "Contraer todo"
+          : "Desplegar todo";
+      });
+    });
+  </script>
+</body>

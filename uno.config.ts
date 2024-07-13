@@ -40,7 +40,7 @@ export default defineConfig({
       scale: 1.2,
       warn: true,
       collections: {
-        // https://icon-sets.iconify.design/
+        // https://icon-sets.iconify.design/mdi/
         mdi: () =>
           import("@iconify-json/mdi/icons.json").then((i) => i.default),
       },
