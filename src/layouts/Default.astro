@@ -1,0 +1,86 @@
+---
+const { frontmatter } = Astro.props;
+const posts = await Astro.glob("../pages/**/*.md");
+
+// Function to generate breadcrumbs
+function generateBreadcrumbs(url) {
+  const parts = url.split("/").filter(Boolean);
+  let path = "";
+  return [
+    { name: "Inicio", url: "/" },
+    ...parts.map((part, index) => {
+      path += `/${part}`;
+      return {
+        name: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, " "),
+        url: index === parts.length - 1 ? null : path,
+      };
+    }),
+  ];
+}
+
+const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{frontmatter.title} - Guía de Programación</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      nav {
+        background-color: #f4f4f4;
+        padding: 10px;
+      }
+      nav a {
+        margin-right: 15px;
+        color: #333;
+        text-decoration: none;
+      }
+      h1 {
+        color: #0066cc;
+      }
+      .breadcrumbs {
+        margin-bottom: 20px;
+        font-size: 0.9em;
+      }
+      .breadcrumbs a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      .breadcrumbs span:last-child {
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Inicio</a>
+    </nav>
+    <div class="breadcrumbs">
+      {
+        breadcrumbs.map((crumb, index) => (
+          <span>
+            {index > 0 && " > "}
+            {crumb.url ? (
+              <a href={crumb.url}>{crumb.name}</a>
+            ) : (
+              <span>{crumb.name}</span>
+            )}
+          </span>
+        ))
+      }
+    </div>
+    <main>
+      <h1>{frontmatter.title}</h1>
+      <slot />
+    </main>
+  </body>
+</html>
