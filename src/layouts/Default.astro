@@ -2,28 +2,46 @@
 import { ViewTransitions } from "astro:transitions";
 const { frontmatter, headings, file } = Astro.props;
 ---
-
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="es" class="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{frontmatter.title} - Guía de Programación</title>
     <style>
+      :root {
+        --bg-main: #FFFFFF;
+        --text-main: #333333;
+        --accent-primary: #007ACC;
+        --accent-secondary: #4A90E2;
+        --accent-tertiary: #E6F3FF;
+      }
+
+      .dark {
+        --bg-main: #1E1E1E;
+        --text-main: #E0E0E0;
+        --accent-primary: #4A90E2;
+        --accent-secondary: #64B5F6;
+        --accent-tertiary: #2C3E50;
+      }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+
       html,
       body {
         height: 100%;
         margin: 0;
         font-family: "Source Sans Pro", sans-serif;
-        background-color: #f5f5f5;
+        background-color: var(--bg-main);
+        color: var(--text-main);
         line-height: 1.6;
-        color: #333;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
+
       .wrapper {
         min-height: 100%;
         display: grid;
@@ -35,40 +53,47 @@ const { frontmatter, headings, file } = Astro.props;
           "footer";
         transition: all 0.3s ease;
       }
+
       header {
         grid-area: header;
-        background-color: #fed330;
-        padding: 20px;
+        background-color: var(--accent-primary);
+        color: var(--bg-main);
+        padding: 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         z-index: 10;
       }
+
       .toggle-btn {
-        background-color: #4a69bd;
-        color: white;
+        background-color: var(--accent-secondary);
+        color: var(--bg-main);
         border: none;
-        padding: 10px 15px;
+        padding: 0.5rem 1rem;
         cursor: pointer;
         transition: background-color 0.3s ease;
       }
+
       .toggle-btn:hover {
-        background-color: #1e3799;
+        background-color: var(--accent-tertiary);
+        color: var(--text-main);
       }
+
       #headerToggle {
-        margin-right: 20px;
+        margin-right: 1rem;
       }
+
       article {
         grid-area: content;
-        background-color: #20bf6b;
-        padding: 8px;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
-        margin: 16px;
       }
+
       aside {
         grid-area: sidebar;
-        background-color: #45aaf2;
+        background-color: var(--accent-tertiary);
+        color: var(--text-main);
         overflow: hidden;
         width: 0;
         height: 100%;
@@ -80,32 +105,84 @@ const { frontmatter, headings, file } = Astro.props;
         display: flex;
         flex-direction: column;
       }
+
       .wrapper.sidebar-visible aside {
         width: 250px;
-        padding: 20px;
+        padding: 1rem;
       }
+
       #sidebarToggle {
         align-self: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 1rem;
       }
+
       footer {
         grid-area: footer;
-        background-color: #fd9644;
-        padding: 20px;
+        background-color: var(--accent-primary);
+        color: var(--bg-main);
+        padding: 1rem;
+        text-align: center;
       }
+
       .wrapper {
         gap: 0;
       }
+
       .wrapper:not(.sidebar-visible) #sidebarToggle {
         display: none;
       }
+
       .wrapper.sidebar-visible #headerToggle {
         display: none;
       }
 
+      /* Typography styles */
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--accent-primary);
+        margin-bottom: 1rem;
+      }
+
+      a {
+        color: var(--accent-secondary);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: var(--accent-primary);
+      }
+
+      /* Theme toggle switch */
+      .theme-switch {
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-switch input {
+        display: none;
+      }
+
+      .theme-switch label {
+        cursor: pointer;
+        padding: 0.5rem;
+        background-color: var(--accent-secondary);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-switch label::after {
+        content: '🌞';
+        margin-left: 0.5rem;
+      }
+
+      .theme-switch input:checked + label::after {
+        content: '🌙';
+      }
+
       /* Breakpoints */
       /* xs: < 500px (default styles above) */
-
+      
       /* sm: 500px > < 767px */
       @media (min-width: 500px) {
         /* Styles remain the same as xs */
@@ -165,7 +242,11 @@ const { frontmatter, headings, file } = Astro.props;
     <div class="wrapper">
       <header>
         <button id="headerToggle" class="toggle-btn">☰</button>
-        <span>Header</span>
+        <span>Guía de Programación</span>
+        <div class="theme-switch">
+          <input type="checkbox" id="theme-toggle">
+          <label for="theme-toggle"></label>
+        </div>
       </header>
       <article>
         <h1>{frontmatter.title}</h1>
@@ -177,13 +258,13 @@ const { frontmatter, headings, file } = Astro.props;
         <button id="sidebarToggle" class="toggle-btn">X</button>
         <nav>
           <ul>
-            <li>Opción de menú 1</li>
-            <li>Opción de menú 2</li>
-            <li>Opción de menú 3</li>
+            <li><a href="#">Introducción</a></li>
+            <li><a href="#">JavaScript</a></li>
+            <li><a href="#">Python</a></li>
           </ul>
         </nav>
       </aside>
-      <footer>Footer</footer>
+      <footer>© 2024 Guía de Programación</footer>
     </div>
 
     <script>
@@ -191,13 +272,26 @@ const { frontmatter, headings, file } = Astro.props;
         const headerToggle = document.getElementById("headerToggle");
         const sidebarToggle = document.getElementById("sidebarToggle");
         const wrapper = document.querySelector(".wrapper");
+        const themeToggle = document.getElementById("theme-toggle");
+        const htmlElement = document.documentElement;
 
         function toggleSidebar() {
           wrapper.classList.toggle("sidebar-visible");
         }
 
+        function toggleTheme() {
+          htmlElement.classList.toggle("dark");
+        }
+
         headerToggle.addEventListener("click", toggleSidebar);
         sidebarToggle.addEventListener("click", toggleSidebar);
+        themeToggle.addEventListener("change", toggleTheme);
+
+        // Check user's preferred color scheme
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          htmlElement.classList.add("dark");
+          themeToggle.checked = true;
+        }
       });
     </script>
   </body>
