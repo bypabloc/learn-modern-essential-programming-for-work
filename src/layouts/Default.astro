@@ -1,0 +1,199 @@
+---
+import { ViewTransitions } from "astro:transitions";
+const { frontmatter, headings, file } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{frontmatter.title} - Guía de Programación</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Source Sans Pro", sans-serif;
+        background-color: #f5f5f5;
+        line-height: 1.6;
+        color: #333;
+      }
+      .wrapper {
+        min-height: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          "header"
+          "content"
+          "footer";
+        transition: all 0.3s ease;
+      }
+      header {
+        grid-area: header;
+        background-color: #fed330;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
+      }
+      .toggle-btn {
+        background-color: #4a69bd;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .toggle-btn:hover {
+        background-color: #1e3799;
+      }
+      #headerToggle {
+        margin-right: 20px;
+      }
+      #sidebarToggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      article {
+        grid-area: content;
+        background-color: #20bf6b;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        margin: 16px;
+      }
+      aside {
+        grid-area: sidebar;
+        background-color: #45aaf2;
+        overflow: hidden;
+        width: 0;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transition: all 0.3s ease;
+        z-index: 20;
+      }
+      .wrapper.sidebar-visible aside {
+        width: 250px;
+        padding: 20px;
+      }
+      footer {
+        grid-area: footer;
+        background-color: #fd9644;
+        padding: 20px;
+      }
+      .wrapper {
+        gap: 0;
+      }
+      .wrapper:not(.sidebar-visible) #sidebarToggle {
+        display: none;
+      }
+      .wrapper.sidebar-visible #headerToggle {
+        display: none;
+      }
+
+      /* Breakpoints */
+      /* xs: < 500px (default styles above) */
+
+      /* sm: 500px > < 767px */
+      @media (min-width: 500px) {
+        /* Styles remain the same as xs */
+      }
+
+      /* md: 767px > < 1280px */
+      @media (min-width: 767px) {
+        .wrapper {
+          grid-template-columns: 0fr 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar content"
+            "footer footer";
+        }
+        .wrapper.sidebar-visible {
+          grid-template-columns: 250px 1fr;
+        }
+        aside {
+          position: relative;
+          height: auto;
+        }
+        header {
+          grid-column: 2 / -1;
+        }
+        .wrapper:not(.sidebar-visible) header {
+          grid-column: 1 / -1;
+        }
+      }
+
+      /* lg: 1280px > < 1920px */
+      @media (min-width: 1280px) {
+        /* Styles remain the same as md */
+      }
+
+      /* xl: 1920px > < 2560px */
+      @media (min-width: 1920px) {
+        .wrapper.sidebar-visible {
+          grid-template-columns: 300px 1fr;
+        }
+        .wrapper.sidebar-visible aside {
+          width: 300px;
+        }
+      }
+
+      /* xxl: > 2560px */
+      @media (min-width: 2560px) {
+        .wrapper.sidebar-visible {
+          grid-template-columns: 350px 1fr;
+        }
+        .wrapper.sidebar-visible aside {
+          width: 350px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <button id="headerToggle" class="toggle-btn">☰</button>
+        <span>Header</span>
+      </header>
+      <article>
+        <h1>{frontmatter.title}</h1>
+        <div style="flex-grow: 1;">
+          <slot />
+        </div>
+      </article>
+      <aside>
+        <button id="sidebarToggle" class="toggle-btn">X</button>
+        <ul><li>Sidebar</li></ul>
+      </aside>
+      <footer>Footer</footer>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const headerToggle = document.getElementById("headerToggle");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const wrapper = document.querySelector(".wrapper");
+
+        function toggleSidebar() {
+          wrapper.classList.toggle("sidebar-visible");
+        }
+
+        headerToggle.addEventListener("click", toggleSidebar);
+        sidebarToggle.addEventListener("click", toggleSidebar);
+
+        // Removido el evento mousemove para evitar comportamientos no deseados en móviles
+      });
+    </script>
+  </body>
+</html>

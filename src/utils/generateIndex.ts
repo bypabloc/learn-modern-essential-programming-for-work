@@ -1,6 +1,6 @@
 import path from "path";
 
-export function generateIndex(pages, currentPath) {
+export function generateIndex(pages, currentPath, showFullIndex = false) {
   function createIndexItem(page) {
     const url =
       page.url ||
@@ -12,7 +12,6 @@ export function generateIndex(pages, currentPath) {
       url: url === "/index" ? "/" : url,
     };
 
-    // Add isEnabled property only if it's true
     if (page.frontmatter.isEnabled === true) {
       item.isEnabled = true;
     }
@@ -68,7 +67,7 @@ export function generateIndex(pages, currentPath) {
   }
 
   function filterStructure(structure, currentPath) {
-    if (currentPath === "/") {
+    if (showFullIndex || currentPath === "/") {
       return structure;
     }
 
@@ -81,14 +80,14 @@ export function generateIndex(pages, currentPath) {
         (item) => item.url.split("/").pop() === part
       );
       if (found) {
-        if (found.url === currentPath) {
-          // If we've found the exact match, return its children
-          return found.children || [];
+        if (i === parts.length - 1) {
+          // If we've reached the last part of the path, return this level
+          return [found];
         }
         if (found.children) {
           currentLevel = found.children;
         } else {
-          // If we've reached a leaf node before matching the full path, return an empty array
+          // If we've reached a leaf node before the end of the path, return an empty array
           return [];
         }
       } else {

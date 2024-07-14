@@ -1,5 +1,6 @@
 ---
 import { ViewTransitions } from "astro:transitions";
+import Sidebar from "@/components/ui/Sidebar/Index.astro";
 import IndexMenu from "@/components/ui/Index/Index.astro";
 const { frontmatter, headings, file } = Astro.props;
 
@@ -33,6 +34,16 @@ const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
     <title>{frontmatter.title} - Guía de Programación</title>
     <ViewTransitions />
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: border-box;
+      }
       main {
         display: flex;
         flex-direction: column;
@@ -44,6 +55,7 @@ const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
         justify-content: flex-start;
         align-items: center;
       }
+      html,
       body {
         margin: 0px;
         font-family: "Source Sans Pro", sans-serif;
@@ -79,29 +91,32 @@ const breadcrumbs = generateBreadcrumbs(Astro.url.pathname);
     </style>
   </head>
 </html>
-<body class="flex flex-col gap-2 w-full">
-  <nav>
-    <a href="/">Guía</a>
-  </nav>
-  <IndexMenu class="px-4" />
-  <main class="flex flex-col items-center px-4 w-full">
-    <div class="w-full max-w-3xl">
-      <div class="breadcrumbs px-4">
-        {
-          breadcrumbs.map((crumb, index) => (
-            <span>
-              {index > 0 && " > "}
-              {crumb.url ? (
-                <a href={crumb.url}>{crumb.name}</a>
-              ) : (
-                <span>{crumb.name}</span>
-              )}
-            </span>
-          ))
-        }
+<body class="flex flex-col gap-2 h-full">
+  <Sidebar />
+  <div>
+    <nav>
+      <a href="/">Guía</a>
+    </nav>
+    <IndexMenu class="px-4" />
+    <main class="flex flex-col items-center px-4 w-full">
+      <div class="w-full max-w-3xl">
+        <div class="breadcrumbs px-4">
+          {
+            breadcrumbs.map((crumb, index) => (
+              <span>
+                {index > 0 && " > "}
+                {crumb.url ? (
+                  <a href={crumb.url}>{crumb.name}</a>
+                ) : (
+                  <span>{crumb.name}</span>
+                )}
+              </span>
+            ))
+          }
+        </div>
+        <h1>{frontmatter.title}</h1>
+        <slot />
       </div>
-      <h1>{frontmatter.title}</h1>
-      <slot />
-    </div>
-  </main>
+    </main>
+  </div>
 </body>
