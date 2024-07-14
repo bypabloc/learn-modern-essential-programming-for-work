@@ -1,7 +1,23 @@
 ---
+// Path: src/layouts/Default.astro
+
 import { ViewTransitions } from "astro:transitions";
-import Sidebar from "@/components/ui/Sidebar/Index.astro";
+import { $display, initializeDisplay } from "@/store/display";
+import { generateIndex } from "@/utils/generateIndex";
+import Header from "@/components/ui/Header/Index.vue";
+import Sidebar from "@/components/ui/Sidebar/Index.vue";
 const { frontmatter, headings, file } = Astro.props;
+
+const { pathname } = Astro.url;
+const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
+const listItemsMenu = generateIndex(allPages, pathname, true);
+
+console.log(
+  "Listado de elementos del menú:",
+  JSON.stringify(listItemsMenu, null, 2)
+);
+
+initializeDisplay();
 ---
 
 <!doctype html>
@@ -9,121 +25,26 @@ const { frontmatter, headings, file } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ViewTransitions />
     <title>{frontmatter.title} - Guía de Programación</title>
   </head>
   <body>
     <div class="wrapper">
-      <header>
-        <button id="headerToggle" class="toggle-btn">☰</button>
-        <span>Guía de Programación</span>
-        <div class="theme-switch">
-          <input type="checkbox" id="theme-toggle" />
-          <label for="theme-toggle"></label>
-        </div>
-      </header>
+      <Header title={frontmatter.title} client:only />
       <article>
         <h1>{frontmatter.title}</h1>
         <slot />
       </article>
-      <Sidebar />
+      <Sidebar menuItems={listItemsMenu} client:only />
       <footer>© 2024 Guía de Programación</footer>
     </div>
 
     <script>
-      // Función para inicializar la página
-      function initializePage() {
-        console.log("Inicializando página");
-        var headerToggle = document.getElementById("headerToggle");
-        var wrapper = document.querySelector(".wrapper");
-        var themeToggle = document.getElementById("theme-toggle");
-        var htmlElement = document.documentElement;
-        var sidebarMenu = document.getElementById("sidebarMenu");
+      import { $display } from "@/store/display";
 
-        console.log("Elementos del DOM obtenidos:", {
-          headerToggle,
-          wrapper,
-          themeToggle,
-          sidebarMenu,
-        });
-
-        // Función para alternar la visibilidad del sidebar
-        function toggleSidebar() {
-          console.log("Toggling sidebar");
-          wrapper.classList.toggle("sidebar-visible");
-          if (wrapper.classList.contains("sidebar-visible")) {
-            document.querySelector("aside").style.width = "250px";
-            console.log("Sidebar visible");
-          } else {
-            document.querySelector("aside").style.width = "0";
-            console.log("Sidebar oculto");
-          }
-        }
-
-        // Función para cambiar el tema
-        function toggleTheme() {
-          console.log("Toggling theme");
-          htmlElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            htmlElement.classList.contains("dark") ? "dark" : "light"
-          );
-          console.log(
-            "Tema actual:",
-            htmlElement.classList.contains("dark") ? "dark" : "light"
-          );
-        }
-
-        // Agregar event listeners
-        headerToggle.addEventListener("click", toggleSidebar);
-        themeToggle.addEventListener("change", toggleTheme);
-
-        // Verificar y aplicar el tema guardado
-        var savedTheme = localStorage.getItem("theme");
-        console.log("Tema guardado:", savedTheme);
-        if (savedTheme) {
-          htmlElement.classList.toggle("dark", savedTheme === "dark");
-          themeToggle.checked = savedTheme === "dark";
-          console.log("Tema aplicado desde localStorage");
-        } else {
-          // Si no hay tema guardado, verificar la preferencia del sistema
-          var prefersDarkScheme =
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)");
-          if (prefersDarkScheme && prefersDarkScheme.matches) {
-            htmlElement.classList.add("dark");
-            themeToggle.checked = true;
-            console.log(
-              "Tema oscuro aplicado basado en preferencias del sistema"
-            );
-          }
-        }
-
-        // Opcional: Escuchar cambios en la preferencia de color del sistema
-        if (
-          prefersDarkScheme &&
-          typeof prefersDarkScheme.addEventListener === "function"
-        ) {
-          prefersDarkScheme.addEventListener("change", function (e) {
-            console.log(
-              "Cambio en la preferencia de color del sistema detectado",
-              e.matches
-            );
-            htmlElement.classList.toggle("dark", e.matches);
-            themeToggle.checked = e.matches;
-            localStorage.setItem("theme", e.matches ? "dark" : "light");
-          });
-        }
-
-        console.log("Inicialización de la página completada");
-      }
-
-      // Inicializar la página cuando el DOM esté listo
-      document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM completamente cargado y analizado");
-        initializePage();
+      $display.subscribe((value) => {
+        document.body.classList.toggle("dark", value.theme === "dark");
       });
-
-      console.log("Script cargado");
     </script>
     <style is:inline>
       :root {
@@ -173,35 +94,6 @@ const { frontmatter, headings, file } = Astro.props;
         transition: all 0.3s ease;
       }
 
-      header {
-        grid-area: header;
-        background-color: var(--accent-primary);
-        color: var(--bg-main);
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        z-index: 10;
-      }
-
-      .toggle-btn {
-        background-color: var(--accent-secondary);
-        color: var(--bg-main);
-        border: none;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-
-      .toggle-btn:hover {
-        background-color: var(--accent-tertiary);
-        color: var(--text-main);
-      }
-
-      #headerToggle {
-        margin-right: 1rem;
-      }
-
       article {
         grid-area: content;
         padding: 1rem;
@@ -225,25 +117,12 @@ const { frontmatter, headings, file } = Astro.props;
         flex-direction: column;
       }
 
-      .wrapper.sidebar-visible aside {
-        width: 250px;
-        padding: 1rem;
-      }
-
       footer {
         grid-area: footer;
         background-color: var(--accent-primary);
         color: var(--bg-main);
         padding: 1rem;
         text-align: center;
-      }
-
-      .wrapper {
-        gap: 0;
-      }
-
-      .wrapper.sidebar-visible #headerToggle {
-        display: none;
       }
 
       /* Typography styles */
@@ -267,34 +146,6 @@ const { frontmatter, headings, file } = Astro.props;
         color: var(--accent-primary);
       }
 
-      /* Theme toggle switch */
-      .theme-switch {
-        display: flex;
-        align-items: center;
-      }
-
-      .theme-switch input {
-        display: none;
-      }
-
-      .theme-switch label {
-        cursor: pointer;
-        padding: 0.5rem;
-        background-color: var(--accent-secondary);
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-      }
-
-      .theme-switch label::after {
-        content: "🌞";
-        margin-left: 0.5rem;
-      }
-
-      .theme-switch input:checked + label::after {
-        content: "🌙";
-      }
-
       /* Breakpoints */
       @media (min-width: 767px) {
         .wrapper {
@@ -310,12 +161,6 @@ const { frontmatter, headings, file } = Astro.props;
         aside {
           position: relative;
           height: auto;
-        }
-        header {
-          grid-column: 2 / -1;
-        }
-        .wrapper:not(.sidebar-visible) header {
-          grid-column: 1 / -1;
         }
       }
 
@@ -334,67 +179,6 @@ const { frontmatter, headings, file } = Astro.props;
         }
         .wrapper.sidebar-visible aside {
           width: 350px;
-        }
-      }
-
-      /* Estilos adicionales para el menú multinivel */
-      .sidebar-menu {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .sidebar-menu li {
-        margin-bottom: 0.5rem;
-      }
-
-      .sidebar-menu a {
-        display: block;
-        padding: 0.5rem;
-        color: var(--text-main);
-        text-decoration: none;
-        transition:
-          color 0.3s ease,
-          background-color 0.3s ease;
-      }
-
-      .sidebar-menu a:hover {
-        color: var(--accent-primary);
-        background-color: rgba(0, 0, 0, 0.1);
-      }
-
-      .sidebar-submenu {
-        padding-left: 1rem;
-        display: none;
-      }
-
-      .sidebar-menu .has-submenu > a::after {
-        content: "▼";
-        font-size: 0.7em;
-        margin-left: 0.5rem;
-      }
-
-      .sidebar-menu .has-submenu.active > a::after {
-        content: "▲";
-      }
-
-      .sidebar-menu .has-submenu.active > .sidebar-submenu {
-        display: block;
-      }
-
-      /* Estilos adicionales para mejorar la visualización */
-      .sidebar-menu .has-submenu > a {
-        font-weight: bold;
-      }
-
-      .sidebar-submenu a {
-        padding-left: 1.5rem;
-      }
-
-      @media (min-width: 767px) {
-        aside {
-          position: relative;
-          height: auto;
         }
       }
     </style>

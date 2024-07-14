@@ -6,9 +6,9 @@ export function generateIndex(pages, currentPath, showFullIndex = false) {
       page.url ||
       `/${path.relative("src/pages", page.file).replace(/\.(md|mdx)$/, "")}`;
     const item = {
-      label:
-        page.frontmatter.title ||
-        path.basename(page.file, path.extname(page.file)),
+      label: page.frontmatter.title
+        ? page.frontmatter.title
+        : path.basename(page.file, path.extname(page.file)).toLowerCase(),
       url: url === "/index" ? "/" : url,
     };
 
@@ -81,22 +81,18 @@ export function generateIndex(pages, currentPath, showFullIndex = false) {
       );
       if (found) {
         if (i === parts.length - 1) {
-          // If we've reached the last part of the path, return this level
           return [found];
         }
         if (found.children) {
           currentLevel = found.children;
         } else {
-          // If we've reached a leaf node before the end of the path, return an empty array
           return [];
         }
       } else {
-        // If we can't find a matching part, return an empty array
         return [];
       }
     }
 
-    // If we've gone through all parts without finding an exact match, return the current level
     return currentLevel;
   }
 
