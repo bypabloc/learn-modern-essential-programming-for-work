@@ -58,11 +58,6 @@ const { frontmatter, headings, file } = Astro.props;
       #headerToggle {
         margin-right: 20px;
       }
-      #sidebarToggle {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-      }
       article {
         grid-area: content;
         background-color: #20bf6b;
@@ -82,10 +77,16 @@ const { frontmatter, headings, file } = Astro.props;
         left: 0;
         transition: all 0.3s ease;
         z-index: 20;
+        display: flex;
+        flex-direction: column;
       }
       .wrapper.sidebar-visible aside {
         width: 250px;
         padding: 20px;
+      }
+      #sidebarToggle {
+        align-self: flex-start;
+        margin-bottom: 20px;
       }
       footer {
         grid-area: footer;
@@ -174,7 +175,13 @@ const { frontmatter, headings, file } = Astro.props;
       </article>
       <aside>
         <button id="sidebarToggle" class="toggle-btn">X</button>
-        <ul><li>Sidebar</li></ul>
+        <nav>
+          <ul>
+            <li>Opción de menú 1</li>
+            <li>Opción de menú 2</li>
+            <li>Opción de menú 3</li>
+          </ul>
+        </nav>
       </aside>
       <footer>Footer</footer>
     </div>
@@ -191,8 +198,6 @@ const { frontmatter, headings, file } = Astro.props;
 
         headerToggle.addEventListener("click", toggleSidebar);
         sidebarToggle.addEventListener("click", toggleSidebar);
-
-        // Removido el evento mousemove para evitar comportamientos no deseados en móviles
       });
     </script>
   </body>
