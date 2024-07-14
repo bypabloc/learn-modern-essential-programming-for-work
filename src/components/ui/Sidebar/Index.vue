@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { navigate } from 'astro:transitions/client';
 import { computed, ref, onMounted } from 'vue';
 import { useStore } from '@nanostores/vue';
 import { $display, toggleSidebar } from '@/store/display';
@@ -68,7 +69,7 @@ function toggleSubmenu(item: MenuItem) {
 
 function navigateTo(event: Event, item: MenuItem) {
   event.preventDefault();
-  window.location.href = item.url;
+  navigate(item.url);
   closeSidebar();
 }
 
