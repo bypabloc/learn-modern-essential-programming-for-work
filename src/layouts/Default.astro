@@ -9,7 +9,6 @@ const { frontmatter, headings, file } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <ViewTransitions />
     <title>{frontmatter.title} - Guía de Programación</title>
   </head>
   <body>
@@ -23,92 +22,14 @@ const { frontmatter, headings, file } = Astro.props;
         </div>
       </header>
       <article>
-        <h1 id="pageTitle">Título de la página</h1>
-        <div id="pageContent">
-          <!-- El contenido de la página se insertará aquí dinámicamente -->
-        </div>
+        <h1>{frontmatter.title}</h1>
+        <slot />
       </article>
       <Sidebar />
       <footer>© 2024 Guía de Programación</footer>
     </div>
 
     <script>
-      // Datos del menú
-      var listItemsMenu = [
-        {
-          label: "Guía de Aprendizaje de Programación",
-          url: "/",
-        },
-        {
-          label: "Guía de Aprendizaje de Programación",
-          url: "/2",
-        },
-        {
-          label: "Conceptos Fundamentales de Programación",
-          url: "/basic-concepts",
-        },
-        {
-          label: "Desarrollo con JavaScript",
-          url: "/javascript",
-          children: [
-            {
-              label: "advanced-topics",
-              url: "/javascript/advanced-topics",
-            },
-            {
-              label: "architecture-and-design-patterns",
-              url: "/javascript/architecture-and-design-patterns",
-            },
-            {
-              label: "databases",
-              url: "/javascript/databases",
-            },
-            {
-              label: "express-api",
-              url: "/javascript/express-api",
-            },
-            {
-              label: "Fundamentos",
-              url: "/javascript/fundamentals",
-            },
-            {
-              label: "Node.js básico",
-              url: "/javascript/node",
-              children: [
-                {
-                  label: "Node Basics",
-                  url: "/javascript/node/basic",
-                },
-              ],
-            },
-            {
-              label: "testing",
-              url: "/javascript/testing",
-            },
-          ],
-        },
-      ];
-      // Función para renderizar el menú
-      function renderMenu(items) {
-        console.log("Renderizando menú", items);
-        var menuHtml = "";
-        for (var i = 0; i < items.length; i++) {
-          var item = items[i];
-          menuHtml +=
-            '<li class="' + (item.children ? "has-submenu" : "") + '">';
-          menuHtml += '<a href="' + item.url + '">' + item.label + "</a>";
-          if (item.children) {
-            menuHtml +=
-              '<ul class="sidebar-submenu">' +
-              renderMenu(item.children) +
-              "</ul>";
-          }
-          menuHtml += "</li>";
-        }
-        console.log("HTML del menú generado:", menuHtml);
-        return menuHtml;
-      }
-
       // Función para inicializar la página
       function initializePage() {
         console.log("Inicializando página");
@@ -124,10 +45,6 @@ const { frontmatter, headings, file } = Astro.props;
           themeToggle,
           sidebarMenu,
         });
-
-        // Renderizar el menú
-        sidebarMenu.innerHTML = renderMenu(listItemsMenu);
-        console.log("Menú renderizado en el DOM");
 
         // Función para alternar la visibilidad del sidebar
         function toggleSidebar() {
@@ -208,277 +125,278 @@ const { frontmatter, headings, file } = Astro.props;
 
       console.log("Script cargado");
     </script>
-  </body><style is:inline>
-    :root {
-      --bg-main: #ffffff;
-      --text-main: #333333;
-      --accent-primary: #007acc;
-      --accent-secondary: #4a90e2;
-      --accent-tertiary: #e6f3ff;
-    }
+    <style is:inline>
+      :root {
+        --bg-main: #ffffff;
+        --text-main: #333333;
+        --accent-primary: #007acc;
+        --accent-secondary: #4a90e2;
+        --accent-tertiary: #e6f3ff;
+      }
 
-    .dark {
-      --bg-main: #1e1e1e;
-      --text-main: #e0e0e0;
-      --accent-primary: #4a90e2;
-      --accent-secondary: #64b5f6;
-      --accent-tertiary: #2c3e50;
-    }
+      .dark {
+        --bg-main: #1e1e1e;
+        --text-main: #e0e0e0;
+        --accent-primary: #4a90e2;
+        --accent-secondary: #64b5f6;
+        --accent-tertiary: #2c3e50;
+      }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      font-family: "Source Sans Pro", sans-serif;
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      line-height: 1.6;
-      transition:
-        background-color 0.3s ease,
-        color 0.3s ease;
-    }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Source Sans Pro", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        line-height: 1.6;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
 
-    .wrapper {
-      min-height: 100%;
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto;
-      grid-template-areas:
-        "header"
-        "content"
-        "footer";
-      transition: all 0.3s ease;
-    }
-
-    header {
-      grid-area: header;
-      background-color: var(--accent-primary);
-      color: var(--bg-main);
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 10;
-    }
-
-    .toggle-btn {
-      background-color: var(--accent-secondary);
-      color: var(--bg-main);
-      border: none;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .toggle-btn:hover {
-      background-color: var(--accent-tertiary);
-      color: var(--text-main);
-    }
-
-    #headerToggle {
-      margin-right: 1rem;
-    }
-
-    article {
-      grid-area: content;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
-
-    aside {
-      grid-area: sidebar;
-      background-color: var(--accent-tertiary);
-      color: var(--text-main);
-      overflow-y: auto;
-      width: 0;
-      height: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      transition: all 0.3s ease;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .wrapper.sidebar-visible aside {
-      width: 250px;
-      padding: 1rem;
-    }
-
-    footer {
-      grid-area: footer;
-      background-color: var(--accent-primary);
-      color: var(--bg-main);
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .wrapper {
-      gap: 0;
-    }
-
-    .wrapper.sidebar-visible #headerToggle {
-      display: none;
-    }
-
-    /* Typography styles */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      color: var(--accent-primary);
-      margin-bottom: 1rem;
-    }
-
-    a {
-      color: var(--accent-secondary);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-      color: var(--accent-primary);
-    }
-
-    /* Theme toggle switch */
-    .theme-switch {
-      display: flex;
-      align-items: center;
-    }
-
-    .theme-switch input {
-      display: none;
-    }
-
-    .theme-switch label {
-      cursor: pointer;
-      padding: 0.5rem;
-      background-color: var(--accent-secondary);
-      border-radius: 1rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .theme-switch label::after {
-      content: "🌞";
-      margin-left: 0.5rem;
-    }
-
-    .theme-switch input:checked + label::after {
-      content: "🌙";
-    }
-
-    /* Breakpoints */
-    @media (min-width: 767px) {
       .wrapper {
-        grid-template-columns: 0fr 1fr;
+        min-height: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
         grid-template-areas:
-          "sidebar header"
-          "sidebar content"
-          "footer footer";
+          "header"
+          "content"
+          "footer";
+        transition: all 0.3s ease;
       }
-      .wrapper.sidebar-visible {
-        grid-template-columns: 250px 1fr;
-      }
-      aside {
-        position: relative;
-        height: auto;
-      }
+
       header {
-        grid-column: 2 / -1;
+        grid-area: header;
+        background-color: var(--accent-primary);
+        color: var(--bg-main);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
       }
-      .wrapper:not(.sidebar-visible) header {
-        grid-column: 1 / -1;
+
+      .toggle-btn {
+        background-color: var(--accent-secondary);
+        color: var(--bg-main);
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
       }
-    }
 
-    @media (min-width: 1920px) {
-      .wrapper.sidebar-visible {
-        grid-template-columns: 300px 1fr;
+      .toggle-btn:hover {
+        background-color: var(--accent-tertiary);
+        color: var(--text-main);
       }
-      .wrapper.sidebar-visible aside {
-        width: 300px;
+
+      #headerToggle {
+        margin-right: 1rem;
       }
-    }
 
-    @media (min-width: 2560px) {
-      .wrapper.sidebar-visible {
-        grid-template-columns: 350px 1fr;
+      article {
+        grid-area: content;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
       }
-      .wrapper.sidebar-visible aside {
-        width: 350px;
-      }
-    }
 
-    /* Estilos adicionales para el menú multinivel */
-    .sidebar-menu {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .sidebar-menu li {
-      margin-bottom: 0.5rem;
-    }
-
-    .sidebar-menu a {
-      display: block;
-      padding: 0.5rem;
-      color: var(--text-main);
-      text-decoration: none;
-      transition:
-        color 0.3s ease,
-        background-color 0.3s ease;
-    }
-
-    .sidebar-menu a:hover {
-      color: var(--accent-primary);
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .sidebar-submenu {
-      padding-left: 1rem;
-      display: none;
-    }
-
-    .sidebar-menu .has-submenu > a::after {
-      content: "▼";
-      font-size: 0.7em;
-      margin-left: 0.5rem;
-    }
-
-    .sidebar-menu .has-submenu.active > a::after {
-      content: "▲";
-    }
-
-    .sidebar-menu .has-submenu.active > .sidebar-submenu {
-      display: block;
-    }
-
-    /* Estilos adicionales para mejorar la visualización */
-    .sidebar-menu .has-submenu > a {
-      font-weight: bold;
-    }
-
-    .sidebar-submenu a {
-      padding-left: 1.5rem;
-    }
-
-    @media (min-width: 767px) {
       aside {
-        position: relative;
-        height: auto;
+        grid-area: sidebar;
+        background-color: var(--accent-tertiary);
+        color: var(--text-main);
+        overflow-y: auto;
+        width: 0;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transition: all 0.3s ease;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
       }
-    }
-  </style>
+
+      .wrapper.sidebar-visible aside {
+        width: 250px;
+        padding: 1rem;
+      }
+
+      footer {
+        grid-area: footer;
+        background-color: var(--accent-primary);
+        color: var(--bg-main);
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .wrapper {
+        gap: 0;
+      }
+
+      .wrapper.sidebar-visible #headerToggle {
+        display: none;
+      }
+
+      /* Typography styles */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--accent-primary);
+        margin-bottom: 1rem;
+      }
+
+      a {
+        color: var(--accent-secondary);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: var(--accent-primary);
+      }
+
+      /* Theme toggle switch */
+      .theme-switch {
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-switch input {
+        display: none;
+      }
+
+      .theme-switch label {
+        cursor: pointer;
+        padding: 0.5rem;
+        background-color: var(--accent-secondary);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-switch label::after {
+        content: "🌞";
+        margin-left: 0.5rem;
+      }
+
+      .theme-switch input:checked + label::after {
+        content: "🌙";
+      }
+
+      /* Breakpoints */
+      @media (min-width: 767px) {
+        .wrapper {
+          grid-template-columns: 0fr 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar content"
+            "footer footer";
+        }
+        .wrapper.sidebar-visible {
+          grid-template-columns: 250px 1fr;
+        }
+        aside {
+          position: relative;
+          height: auto;
+        }
+        header {
+          grid-column: 2 / -1;
+        }
+        .wrapper:not(.sidebar-visible) header {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (min-width: 1920px) {
+        .wrapper.sidebar-visible {
+          grid-template-columns: 300px 1fr;
+        }
+        .wrapper.sidebar-visible aside {
+          width: 300px;
+        }
+      }
+
+      @media (min-width: 2560px) {
+        .wrapper.sidebar-visible {
+          grid-template-columns: 350px 1fr;
+        }
+        .wrapper.sidebar-visible aside {
+          width: 350px;
+        }
+      }
+
+      /* Estilos adicionales para el menú multinivel */
+      .sidebar-menu {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar-menu a {
+        display: block;
+        padding: 0.5rem;
+        color: var(--text-main);
+        text-decoration: none;
+        transition:
+          color 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .sidebar-menu a:hover {
+        color: var(--accent-primary);
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar-submenu {
+        padding-left: 1rem;
+        display: none;
+      }
+
+      .sidebar-menu .has-submenu > a::after {
+        content: "▼";
+        font-size: 0.7em;
+        margin-left: 0.5rem;
+      }
+
+      .sidebar-menu .has-submenu.active > a::after {
+        content: "▲";
+      }
+
+      .sidebar-menu .has-submenu.active > .sidebar-submenu {
+        display: block;
+      }
+
+      /* Estilos adicionales para mejorar la visualización */
+      .sidebar-menu .has-submenu > a {
+        font-weight: bold;
+      }
+
+      .sidebar-submenu a {
+        padding-left: 1.5rem;
+      }
+
+      @media (min-width: 767px) {
+        aside {
+          position: relative;
+          height: auto;
+        }
+      }
+    </style>
+  </body>
 </html>
