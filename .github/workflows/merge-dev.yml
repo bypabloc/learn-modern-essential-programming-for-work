@@ -1,8 +1,5 @@
 name: Astro Studio
 
-env:
-  ASTRO_STUDIO_APP_TOKEN: ${{ secrets.ASTRO_STUDIO_APP_TOKEN }}
-
 on:
   push:
     branches:
@@ -56,8 +53,6 @@ jobs:
         run: pnpm install
 
       - name: Run merge build
-        env:
-          ASTRO_STUDIO_APP_TOKEN: ${{ secrets.ASTRO_STUDIO_APP_TOKEN }}
         run: |
           source $GITHUB_ENV
           pnpm run start:dev mergeBuild
