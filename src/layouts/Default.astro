@@ -35,7 +35,7 @@ initializeDisplay();
         <h1>{frontmatter.title}</h1>
         <slot />
       </article>
-      <Sidebar menuItems={listItemsMenu} client:only />
+      <Sidebar items={listItemsMenu} client:only />
       <footer>© 2024 Guía de Programación</footer>
     </div>
 

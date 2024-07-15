@@ -2,12 +2,20 @@
 
 import { atom } from "nanostores";
 
+
+interface MenuItem {
+  title: string;
+  url: string;
+  children?: MenuItem[];
+}
+
 interface DisplayState {
   breakpoint: string;
   isMobile: boolean;
   isMiniMobile: boolean;
   theme: "light" | "dark";
   isSidebarOpen: boolean;
+  menuItems: MenuItem[];
 }
 
 export const $display = atom<DisplayState>({
@@ -16,6 +24,7 @@ export const $display = atom<DisplayState>({
   isMiniMobile: false,
   theme: "light",
   isSidebarOpen: false,
+  menuItems: [],
 });
 
 const breakpoints = {

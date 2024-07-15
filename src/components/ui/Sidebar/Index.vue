@@ -9,29 +9,24 @@
     </div>
     <nav>
       <ul class="sidebar-menu">
-        <li v-for="item in menuItems" :key="item.url" :class="{ 'has-submenu': item.children && item.children.length, 'active': isActive(item) }">
-          <div class="menu-item">
-            <a :href="item.url" @click="navigateTo($event, item)">{{ item.label }}</a>
-            <button v-if="item.children && item.children.length" @click="toggleSubmenu(item)" class="submenu-toggle">
-              <i :class="isActive(item) ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'"></i>
-            </button>
-          </div>
-          <ul v-if="item.children && item.children.length" class="sidebar-submenu" :class="{ 'active': isActive(item) }">
-            <li v-for="subItem in item.children" :key="subItem.url">
-              <a :href="subItem.url" @click="navigateTo($event, subItem)">{{ subItem.label }}</a>
-            </li>
-          </ul>
-        </li>
+        <MenuItem
+          v-for="item in items"
+          :key="item.url"
+          :item="item"
+          :active-path="activePath"
+          @navigate="handleNavigation"
+        />
       </ul>
     </nav>
   </aside>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch, computed } from 'vue';
 import { navigate } from 'astro:transitions/client';
-import { computed, ref, onMounted } from 'vue';
 import { useStore } from '@nanostores/vue';
 import { $display, toggleSidebar } from '@/store/display';
+import MenuItem from '@/components/ui/MenuItem/Index.vue';
 
 interface MenuItem {
   label: string;
@@ -39,58 +34,33 @@ interface MenuItem {
   children?: MenuItem[];
 }
 
-const props = defineProps({
-  menuItems: {
-    type: Array as () => MenuItem[],
-    required: true,
-  },
-});
-
-console.log('menuItems', props.menuItems);
+const props = defineProps<{
+  items: MenuItem[];
+}>();
 
 const displayStore = useStore($display);
 const isSidebarOpen = computed(() => displayStore.value.isSidebarOpen);
-
-const activeItems = ref<Set<MenuItem>>(new Set());
-
-function isActive(item: MenuItem): boolean {
-  return activeItems.value.has(item);
-}
-
-function toggleSubmenu(item: MenuItem) {
-  if (item.children && item.children.length) {
-    if (activeItems.value.has(item)) {
-      activeItems.value.delete(item);
-    } else {
-      activeItems.value.add(item);
-    }
-  }
-}
-
-function navigateTo(event: Event, item: MenuItem) {
-  event.preventDefault();
-  navigate(item.url);
-  closeSidebar();
-}
+const activePath = ref(window.location.pathname);
 
 function closeSidebar() {
   toggleSidebar();
 }
 
+function handleNavigation(url: string) {
+  navigate(url);
+  closeSidebar();
+}
+
 onMounted(() => {
-  updateActiveItems();
-  window.addEventListener('popstate', updateActiveItems);
+  updateActivePath();
+  window.addEventListener('popstate', updateActivePath);
 });
 
-function updateActiveItems() {
-  const currentPath = window.location.pathname;
-  activeItems.value.clear();
-  props.menuItems.forEach(item => {
-    if (currentPath.startsWith(item.url)) {
-      activeItems.value.add(item);
-    }
-  });
+function updateActivePath() {
+  activePath.value = window.location.pathname;
 }
+
+watch(() => props.items, updateActivePath);
 </script>
 
 <style scoped>
@@ -142,63 +112,10 @@ function updateActiveItems() {
   margin: 0;
 }
 
-.sidebar-menu li {
-  margin-bottom: 0.5rem;
-}
-
-.menu-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.menu-item a {
-  flex-grow: 1;
-  padding: 0.5rem;
-  color: var(--text-main);
-  text-decoration: none;
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-.menu-item a:hover {
-  color: var(--accent-primary);
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.submenu-toggle {
-  background: none;
-  border: none;
-  color: var(--text-main);
-  cursor: pointer;
-  padding: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.submenu-toggle:hover {
-  color: var(--accent-primary);
-}
-
-.sidebar-submenu {
-  padding-left: 1rem;
-  display: none;
-}
-
-.sidebar-submenu.active {
-  display: block;
-}
-
-.sidebar-menu .has-submenu > .menu-item > a {
-  font-weight: bold;
-}
-
-.sidebar-submenu a {
-  padding-left: 1.5rem;
-}
-
 @media (min-width: 767px) {
   .sidebar {
     position: relative;
     height: auto;
   }
 }
-</style>
+</style>import type { log } from 'node_modules/astro/dist/core/logger/core';
