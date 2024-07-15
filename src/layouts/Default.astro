@@ -12,11 +12,6 @@ const { pathname } = Astro.url;
 const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
 const listItemsMenu = generateIndex(allPages, pathname, true);
 
-console.log(
-  "Listado de elementos del menú:",
-  JSON.stringify(listItemsMenu, null, 2)
-);
-
 initializeDisplay();
 ---
 
@@ -30,12 +25,12 @@ initializeDisplay();
   </head>
   <body>
     <div class="wrapper">
-      <Header title={frontmatter.title} client:only />
-      <article>
+      <Header title={frontmatter.title} client:only="vue" />
+      <article class="flex flex-col m-6">
         <h1>{frontmatter.title}</h1>
         <slot />
       </article>
-      <Sidebar items={listItemsMenu} client:only />
+      <Sidebar items={listItemsMenu} client:only="vue" />
       <footer>© 2024 Guía de Programación</footer>
     </div>
 
@@ -96,9 +91,14 @@ initializeDisplay();
 
       article {
         grid-area: content;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
+      }
+
+      article ul {
+        margin-left: 0;
+      }
+
+      article li {
+        margin-left: 1rem;
       }
 
       aside {
