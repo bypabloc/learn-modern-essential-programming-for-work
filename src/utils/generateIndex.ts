@@ -5,18 +5,34 @@ export function generateIndex(pages, currentPath, showFullIndex = false) {
     const url =
       page.url ||
       `/${path.relative("src/pages", page.file).replace(/\.(md|mdx)$/, "")}`;
-    const item = {
-      label: page.frontmatter.title
-        ? page.frontmatter.title
-        : path.basename(page.file, path.extname(page.file)).toLowerCase(),
-      url: url === "/index" ? "/" : url,
-    };
+    
+    const item = { ...page.frontmatter };
+
+    item.label = page.frontmatter.title
+      ? page.frontmatter.title
+      : path.basename(page.file, path.extname(page.file)).toLowerCase();
+    item.url = url === "/index" ? "/" : url;
+
+    if (!item.file) {
+      item.file = page.file;
+    }
 
     if (page.frontmatter.isEnabled === true) {
       item.isEnabled = true;
     }
 
     return item;
+  }
+
+  function sortItems(items) {
+    return items.sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      return 0;
+    });
   }
 
   function buildStructure(pages) {
@@ -50,16 +66,24 @@ export function generateIndex(pages, currentPath, showFullIndex = false) {
         const dirEntry =
           parts.length > 0 ? dirMap.get(parts[parts.length - 1]) : null;
         if (dirEntry) {
-          dirEntry.label = indexItem.label;
-          dirEntry.url = indexItem.url;
-          if (indexItem.isEnabled) {
-            dirEntry.isEnabled = true;
-          }
+          Object.assign(dirEntry, indexItem, {
+            label: indexItem.label,
+            url: indexItem.url,
+            children: dirEntry.children,
+          });
         } else if (indexItem.url === "/") {
-          structure.unshift(indexItem);
+          structure.push(indexItem);
         }
       } else {
         currentLevel.push(indexItem);
+      }
+    });
+
+    // Sort the structure and all nested levels
+    sortItems(structure);
+    structure.forEach((item) => {
+      if (item.children) {
+        sortItems(item.children);
       }
     });
 

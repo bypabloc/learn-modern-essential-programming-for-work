@@ -6,11 +6,14 @@ import { $display, initializeDisplay } from "@/store/display";
 import { generateIndex } from "@/utils/generateIndex";
 import Header from "@/components/ui/Header/Index.vue";
 import Sidebar from "@/components/ui/Sidebar/Index.vue";
+import Breadcrumbs from "@/components/ui/Breadcrumbs/Index.vue";
 const { frontmatter, headings, file } = Astro.props;
 
 const { pathname } = Astro.url;
 const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
 const listItemsMenu = generateIndex(allPages, pathname, true);
+
+console.log("listItemsMenu", JSON.stringify(listItemsMenu, null, 2));
 
 initializeDisplay();
 ---
@@ -26,6 +29,11 @@ initializeDisplay();
   <body>
     <div class="wrapper">
       <Header title={frontmatter.title} client:only="vue" />
+      <Breadcrumbs
+        pathname={pathname}
+        listItemsMenu={listItemsMenu}
+        client:only="vue"
+      />
       <article class="flex flex-col m-6">
         <h1>{frontmatter.title}</h1>
         <slot />
@@ -81,9 +89,10 @@ initializeDisplay();
         min-height: 100%;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr auto;
+        grid-template-rows: auto auto 1fr auto;
         grid-template-areas:
           "header"
+          "breadcrumbs"
           "content"
           "footer";
         transition: all 0.3s ease;
@@ -91,6 +100,11 @@ initializeDisplay();
 
       article {
         grid-area: content;
+      }
+
+      article.content {
+        grid-area: content;
+        padding: 1rem;
       }
 
       article ul {
@@ -152,6 +166,7 @@ initializeDisplay();
           grid-template-columns: 0fr 1fr;
           grid-template-areas:
             "sidebar header"
+            "sidebar breadcrumbs"
             "sidebar content"
             "footer footer";
         }
