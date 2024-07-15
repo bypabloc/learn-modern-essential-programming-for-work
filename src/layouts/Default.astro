@@ -7,13 +7,12 @@ import { generateIndex } from "@/utils/generateIndex";
 import Header from "@/components/ui/Header/Index.vue";
 import Sidebar from "@/components/ui/Sidebar/Index.vue";
 import Breadcrumbs from "@/components/ui/Breadcrumbs/Index.vue";
+import Pagination from "@/components/ui/Pagination/Index.vue";
 const { frontmatter, headings, file } = Astro.props;
 
 const { pathname } = Astro.url;
 const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
 const listItemsMenu = generateIndex(allPages, pathname, true);
-
-console.log("listItemsMenu", JSON.stringify(listItemsMenu, null, 2));
 
 initializeDisplay();
 ---
@@ -34,10 +33,17 @@ initializeDisplay();
         listItemsMenu={listItemsMenu}
         client:only="vue"
       />
-      <article class="flex flex-col m-6">
+      <article class="content">
         <h1>{frontmatter.title}</h1>
         <slot />
       </article>
+      <div class="pagination-container">
+        <Pagination
+          currentPath={pathname}
+          menuItems={listItemsMenu}
+          client:only="vue"
+        />
+      </div>
       <Sidebar items={listItemsMenu} client:only="vue" />
       <footer>© 2024 Guía de Programación</footer>
     </div>
@@ -89,22 +95,25 @@ initializeDisplay();
         min-height: 100%;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr auto;
+        grid-template-rows: auto auto 1fr auto auto;
         grid-template-areas:
           "header"
           "breadcrumbs"
           "content"
+          "pagination"
           "footer";
         transition: all 0.3s ease;
-      }
-
-      article {
-        grid-area: content;
       }
 
       article.content {
         grid-area: content;
         padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .pagination-container {
+        grid-area: pagination;
+        padding: 0 1rem;
       }
 
       article ul {
@@ -168,6 +177,7 @@ initializeDisplay();
             "sidebar header"
             "sidebar breadcrumbs"
             "sidebar content"
+            "sidebar pagination"
             "footer footer";
         }
         .wrapper.sidebar-visible {
