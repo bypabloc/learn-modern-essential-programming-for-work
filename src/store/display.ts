@@ -1,7 +1,7 @@
 // src/store/display.ts
 
 import { atom } from "nanostores";
-
+import { persistentAtom } from "@nanostores/persistent";
 
 interface MenuItem {
   title: string;
@@ -18,14 +18,23 @@ interface DisplayState {
   menuItems: MenuItem[];
 }
 
-export const $display = atom<DisplayState>({
+const initialState: DisplayState = {
   breakpoint: "",
   isMobile: false,
   isMiniMobile: false,
   theme: "light",
   isSidebarOpen: false,
   menuItems: [],
-});
+};
+
+export const $display = persistentAtom<DisplayState>(
+  "display-state",
+  initialState,
+  {
+    encode: JSON.stringify,
+    decode: JSON.parse,
+  }
+);
 
 const breakpoints = {
   "min-xs": "(max-width: 239px)",
@@ -38,28 +47,29 @@ const breakpoints = {
 };
 
 export function initializeDisplay() {
-  if (typeof window !== "undefined") {
-    const mediaQueries = Object.entries(breakpoints).map(([key, query]) => [
-      key,
-      window.matchMedia(query),
-    ]);
-
-    const updateBreakpoint = () => {
-      const currentBreakpoint =
-        mediaQueries.find(([, mq]) => mq.matches)?.[0] || "";
-      $display.set({
-        ...$display.get(),
-        breakpoint: currentBreakpoint,
-        isMobile: currentBreakpoint === "xs",
-        isMiniMobile: currentBreakpoint === "min-xs",
-      });
-    };
-
-    mediaQueries.forEach(([, mq]) =>
-      mq.addEventListener("change", updateBreakpoint)
-    );
-    updateBreakpoint();
+  if (typeof window === "undefined") {
+    return;
   }
+  const mediaQueries = Object.entries(breakpoints).map(([key, query]) => [
+    key,
+    window.matchMedia(query),
+  ]);
+
+  const updateBreakpoint = () => {
+    const currentBreakpoint =
+      mediaQueries.find(([, mq]) => mq.matches)?.[0] || "";
+    $display.set({
+      ...$display.get(),
+      breakpoint: currentBreakpoint,
+      isMobile: currentBreakpoint === "xs",
+      isMiniMobile: currentBreakpoint === "min-xs",
+    });
+  };
+
+  mediaQueries.forEach(([, mq]) =>
+    mq.addEventListener("change", updateBreakpoint)
+  );
+  updateBreakpoint();
 }
 
 export function toggleTheme() {
