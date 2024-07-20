@@ -22,7 +22,9 @@ const loadEnvFile = async (
     return {}; // Devolver un objeto vacío si el archivo no existe
   }
 
-  const oldEnv = { ...process.env };
+  const oldEnv = JSON.parse(JSON.stringify(process.env));
+
+  // console.log('Variables de entorno anteriores', oldEnv);
 
   try {
     process.loadEnvFile(`${path}/.env.${env}`)
@@ -38,6 +40,8 @@ const loadEnvFile = async (
           newVars[key] = process.env[key];
       }
   }
+
+  // console.log('Nuevas variables de entorno', newVars);
 
   // Restaurar las variables de entorno originales
   process.env = {

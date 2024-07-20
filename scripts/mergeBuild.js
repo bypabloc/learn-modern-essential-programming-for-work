@@ -9,7 +9,7 @@ export class MergeBuild extends BaseClass {
   constructor() {
     super();
     this.rootDir = process.cwd();
-    this.distDir = path.join(this.rootDir, 'dist/client');
+    this.distDir = path.join(this.rootDir, 'dist');
     this.tmpDir = path.join(this.rootDir, '.tmp');
   }
 

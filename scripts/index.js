@@ -98,8 +98,8 @@ const runScript = async ({ scriptName }) => {
     const result = await instance.execute();
 
     console.log(`Script ${className} ejecutado exitosamente.`);
-
     if (!result.isValid) {
+      console.log("result", result)
       throw new Error("El script no se ejecutó correctamente.", result.errors);
     }
   } catch (error) {

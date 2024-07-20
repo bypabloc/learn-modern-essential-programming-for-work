@@ -10,27 +10,28 @@ import vue from "@astrojs/vue";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [UnoCSS(), mdx({
-    optimize: true,
-    syntaxHighlight: 'shiki',
-    shikiConfig: {
-      theme: 'dracula'
-    },
-    remarkPlugins: [remarkToc],
-    // rehypePlugins: [rehypeMinifyHtml],
-    remarkRehype: {
-      footnoteLabel: 'Footnotes'
-    },
-    gfm: false
-  }), vue()],
+  // output: 'static',
+  integrations: [
+    UnoCSS(),
+    mdx({
+      optimize: true,
+      syntaxHighlight: 'shiki',
+      shikiConfig: {
+        theme: 'dracula'
+      },
+      remarkPlugins: [remarkToc],
+      remarkRehype: {
+        footnoteLabel: 'Footnotes'
+      },
+      gfm: false
+    }),
+    vue(),
+  ],
   vite: {
     resolve: {
       alias: {
         '@': path.resolve('./src'),
-        '@components': path.resolve('./src/components'),
-        '@layouts': path.resolve('./src/layouts'),
-        '@utils': path.resolve('./src/utils')
       }
-    }
+    },
   }
 });

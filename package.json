@@ -9,7 +9,7 @@
     "astro": "astro",
     "start:dev": "ENV=development pnpm run start",
     "start": "node scripts/index.js",
-    "build:no-check": "astro build --remote",
+    "build:no-check": "astro build",
     "npm:install": "rm -rf node_modules && rm -rf dist && pnpm store prune && pnpm install",
     "npm:reinstall": "rm -rf node_modules && rm -rf dist && rm -f pnpm-lock.yaml && pnpm store prune && pnpm install"
   },
@@ -17,6 +17,9 @@
     "@astrojs/check": "^0.8.1",
     "@astrojs/mdx": "^3.1.2",
     "@astrojs/vue": "^4.5.0",
+    "@aws-sdk/client-cloudfront": "^3.614.0",
+    "@aws-sdk/client-s3": "^3.614.0",
+    "@aws-sdk/credential-provider-sso": "^3.614.0",
     "@iconify-json/mdi": "^1.1.67",
     "@nanostores/persistent": "^0.10.1",
     "@nanostores/vue": "^0.10.0",
