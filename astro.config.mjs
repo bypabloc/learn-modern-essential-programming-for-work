@@ -5,12 +5,16 @@ import mdx from "@astrojs/mdx";
 import remarkToc from 'remark-toc';
 import path from 'path';
 // import rehypeMinifyHtml from 'rehype-minify-html';
-
+import node from "@astrojs/node";
 import vue from "@astrojs/vue";
 
 // https://astro.build/config
 export default defineConfig({
-  // output: 'static',
+  output: 'hybrid',
+	// site: 'https://d8np9d3gafjj2.cloudfront.net',
+  adapter: node({  // Add this block
+    mode: 'standalone'
+  }),
   integrations: [
     UnoCSS(),
     mdx({
@@ -33,5 +37,8 @@ export default defineConfig({
         '@': path.resolve('./src'),
       }
     },
-  }
+  },
+  experimental: {
+    serverIslands: true,
+  },
 });

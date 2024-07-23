@@ -65,7 +65,7 @@ jobs:
           aws-region: sa-east-1
 
       - name: Deploy to S3
-        run: aws s3 sync --delete ./.tmp/ s3://learn-the-essentials-to-work-dev
+        run: aws s3 sync --delete ./.tmp/ s3://${{ secrets.AWS_BUCKET_NAME }}/${{ secrets.AWS_BUCKET_PATH }}
 
       - name: Create CloudFront invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"

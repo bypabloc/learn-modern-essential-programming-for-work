@@ -3,14 +3,16 @@ import { ViewTransitions } from "astro:transitions";
 import { $display, initializeDisplay } from "@/store/display";
 import { generateIndex } from "@/utils/generateIndex";
 import Header from "@/components/ui/Header/Index.vue";
+import Pagination from "@/components/Pagination.astro";
 import Sidebar from "@/components/ui/Sidebar/Index.vue";
 import Breadcrumbs from "@/components/ui/Breadcrumbs/Index.vue";
-import Pagination from "@/components/ui/Pagination/Index.vue";
 const { frontmatter, headings, file } = Astro.props;
 
 const { pathname } = Astro.url;
 const allPages = await Astro.glob("@/pages/**/*.{md,mdx}");
 const listItemsMenu = generateIndex(allPages, pathname, true);
+
+console.log("listItemsMenu", JSON.stringify(listItemsMenu, null, 2));
 
 initializeDisplay();
 ---
@@ -39,7 +41,7 @@ initializeDisplay();
         <Pagination
           currentPath={pathname}
           menuItems={listItemsMenu}
-          client:only="vue"
+          server:defer
         />
       </div>
       <Sidebar items={listItemsMenu} client:only="vue" />
